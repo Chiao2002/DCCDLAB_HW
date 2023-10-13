@@ -12,7 +12,7 @@ clear all; close all;
 %% Q1: Scaling Factor S(N) %%
 num_iteration = 20;
 
-for k = 1:num_iteration  %k=0~N
+for k = 1:num_iteration  %k=0~N-1
     elementary_angle(k) = atan(2^(-(k-1)));
     scaling_factor_each(k) = cos(elementary_angle(k)); %=1/sqrt(1+2^(-2*i))
     if k==1
@@ -41,7 +41,7 @@ close;
 % N = num_iteration;
 % n = 0:11;
 beta = 3;
-X_pseudo = zeros(1, num_iteration+1);
+X_pseudo = zeros(1, num_iteration+1); %include the intial stage value
 Y_pseudo = zeros(1, num_iteration+1);
 phase_out = zeros(1, num_iteration+1);
 for n = 1:12
@@ -112,7 +112,7 @@ for WL = 10:20
     elementary_q_error(WL-9, :) = abs(elementary_angle_Q3-elementary_angle_q);
 end
 mean_elementary_q_error = log2(mean(elementary_q_error, 2));
-
+elementary_fixed = round(atan(2.^-(0:8))*2^10).';
 %% CORDIC fxed-point %
 WL_phase = 14;
 for n = 1:12
@@ -126,6 +126,7 @@ for n = 1:12
     Y_pseudo_q(n, 1) = quantizer(12, 2, Y_pseudo(n, 1));
     phase_out_q(n, 1) = quantizer(WL_phase, 4, phase_out_Q3(n, 1));
     phase_error_Q3(n, 1) = abs(answer_phase(n)-phase_out_q(n, 1));
+    
     % Iteration step: %
     for N = 1:num_iteration
         [X_pseudo(n, N+1), Y_pseudo(n, N+1), phase_out_Q3(n, N+1)] = ...
@@ -147,7 +148,9 @@ plot(x_axis, mean_phase_error_Q3(2:end));
 plot(x_axis, -8, 'ro');
 
 
-
+X_pseudo_fixed = round(X_pseudo_q*2^10);
+Y_pseudo_fixed = round(Y_pseudo_q*2^10);
+Phase_fixed = round(phase_out_q*2^10);
 
 
 
